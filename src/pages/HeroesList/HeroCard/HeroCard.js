@@ -8,9 +8,7 @@ class HeroCard extends PureComponent {
       <div>
         <p>{name}</p>
         <p>{gender}</p>
-        <p>{films.map((item) => {
-          return item;
-        })}</p>
+        <p>{films}</p>
       </div>
     )
   }
