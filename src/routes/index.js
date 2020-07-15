@@ -1,33 +1,41 @@
-import React, { useEffect } from 'react'; // ???
-import { useSelector } from 'react-redux'; // ???
-import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import React, { useState, useEffect } from 'react'; // ???
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import Redirect from "react-router-dom/es/Redirect";
+import { withStyles } from '@material-ui/core';
 
-import LS from '../tools/LocalStorage';
 import { Authorization, HeroesList } from '../pages';
+import globalStyles from '../styles/global';
 
 function Routes() {
-  const store = useSelector(data => data);
-  const LocalStorage = new LS();
+  const [authorized, setAuthorized] = useState(false);
+  const [user, setUser] = useState(null);
+
+  const authorize = () => {
+    setAuthorized(true);
+  };
+
+  const getUserInfo = (info) => {
+    setUser(info);
+  };
 
   useEffect(() => {
-    LocalStorage.set('data', store);
-  });
+  }, [authorized]);
 
   return(
     <Router>
       <Switch>
         <Route path="/auth">
-          <Authorization />
+          <Authorization authorization={authorize} getUserInfo={getUserInfo}/>
         </Route>
         <Route path="/list">
-          <HeroesList />
+          <HeroesList user={user}/>
         </Route>
       </Switch>
       {
-        store.authorized ? <Redirect to="/list" /> : <Redirect to="/auth" />
+        authorized ? <Redirect to="/list" /> : <Redirect to="/auth" />
       }
     </Router>
   )
 }
 
-export default Routes;
+export default withStyles(globalStyles)(Routes);

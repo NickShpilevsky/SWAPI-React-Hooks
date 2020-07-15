@@ -1,63 +1,92 @@
-import React, { Component } from 'react';
-// import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import React from 'react';
 import FacebookLogin from 'react-facebook-login';
+import { LinkedIn } from 'react-linkedin-login-oauth2';
+import makeStyles from '@material-ui/core/styles/makeStyles';
+import {Grid, Paper} from '@material-ui/core';
 
-import {authorized} from "../../reducers";
+const useStyles = makeStyles((theme) => ({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundImage: 'url(/images/background.jpg);',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    minHeight: '24rem',
+    height: '60rem',
+    width: '100%',
+    alignItems: 'center',
+  },
 
-class Authorization extends Component {
-  // static PropTypes = {
-  //   authorized: PropTypes.func.isRequired,
-  // };
+  paper: {
+    width: '20rem',
+    display: 'flex',
+    justifyContent: 'center',
+    backgroundColor: theme.palette.primary.main,
+    alignItems: 'center',
+    padding: theme.spacing(5, 5),
+    marginTop: '5rem',
+  },
 
-  constructor(props) {
-    super(props);
-    this.responseFacebook = this.responseFacebook.bind(this);
-  }
+  image: {
+    width: '50rem',
+    backgroundImage: 'url(/images/sw_logo.png);',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    minHeight: '24rem',
+    height: '20rem', //'80vh',
+    marginTop: '5rem',
+  },
+}));
 
-  state = {
-    isLoggedIn: false,
-    userId: '',
-    name: '',
-    email: '',
-    picture: '',
-  };
+const Authorization = props => {
 
-  componentClicked = () => {
-    console.log("clicked");
-  };
-
-  responseFacebook = response => {
+  const responseFacebook = response => {
     if(response) {
-      console.log(response);
-      this.props.authorized();
+      props.authorization(true);
+      props.getUserInfo(response);
     } else {
       console.log('No Response');
     }
   };
 
-  render() {
-    let fbContent;
-
-    if(this.state.isLoggedIn) {
-      fbContent = null;
-    } else {
-      fbContent = (
-        <FacebookLogin
-          appId="320314542705859"
-          autoLoad={true}
-          fields="name,email,picture"
-          onClick={this.componentClicked}
-          callback={this.responseFacebook} />
-      );
+  const responseLinkedIn = (response) => {
+    if(response) {
+      alert(response.code);
     }
+  };
 
+  const linkedInFailure = (error) => {
+    console.log(error.errorMessage);
+  };
+
+  const classes = useStyles();
     return (
-      <div>
-        {fbContent}
+      <div className={classes.container}>
+        <div className={classes.image} />
+        <Paper elevation={5} className={classes.paper}>
+          <Grid container spacing={1} direction="row" justify="center" alignItems="center">
+            <Grid item>
+              <FacebookLogin
+                appId="320314542705859"
+                autoLoad={true}
+                fields="name,email,picture"
+                callback={responseFacebook}
+              />
+            </Grid>
+            <Grid item>
+              <LinkedIn
+                clientId="78o49u3o5sq6ul"
+                onSuccess={responseLinkedIn}
+                onFailure={linkedInFailure}
+                scope={["r_liteprofile","r_emailaddress"]}
+                redirectUri="https://localhost:3000/auth"
+                text="Login With LinkedIn"
+              />
+            </Grid>
+          </Grid>
+        </Paper>
       </div>
     )
-  }
-}
+};
 
-export default connect(null, { authorized })(Authorization);
+export default Authorization;
