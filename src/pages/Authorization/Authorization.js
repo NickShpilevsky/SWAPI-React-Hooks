@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
   },
 
   paper: {
-    width: '20rem',
+    width: '23rem',
     display: 'flex',
     justifyContent: 'center',
     backgroundColor: theme.palette.primary.main,
