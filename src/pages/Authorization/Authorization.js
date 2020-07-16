@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import FacebookLogin from 'react-facebook-login';
 import { LinkedIn } from 'react-linkedin-login-oauth2';
 import makeStyles from '@material-ui/core/styles/makeStyles';
@@ -40,6 +40,12 @@ const useStyles = makeStyles((theme) => ({
 
 const Authorization = props => {
 
+  let [check, setCheck] = useState();
+
+  useEffect(() => {
+    console.log(check);
+  }, [check]);
+
   const responseFacebook = response => {
     if(response) {
       props.authorization(true);
@@ -50,9 +56,8 @@ const Authorization = props => {
   };
 
   const responseLinkedIn = (response) => {
-    if(response) {
-      alert(response.code);
-    }
+    console.log('Here');
+    setCheck(response);
   };
 
   const linkedInFailure = (error) => {
@@ -68,7 +73,7 @@ const Authorization = props => {
             <Grid item>
               <FacebookLogin
                 appId="320314542705859"
-                autoLoad={true}
+                autoLoad={false}
                 fields="name,email,picture"
                 callback={responseFacebook}
               />

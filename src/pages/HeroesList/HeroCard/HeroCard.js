@@ -31,7 +31,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const HeroCard = props => {
-  // const { name, height, mass, hair_color, skin_color, eye_color, birth_year, gender, homeworld, vehicles, films } = props.hero;
   const sendInfo = () => {
     props.setInformation(props.hero);
   };
