@@ -145,13 +145,13 @@ const Info = props => {
           <Typography className={classes.itemTitle}>Films</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography>
+          <div>
               {
                 compositeInfo ? compositeInfo.films.map(item => (
                   <p key={item} className={classes.itemTitle}>{item}</p>
                 )) : ''
               }
-          </Typography>
+          </div>
         </AccordionDetails>
       </Accordion>
     </Paper>
