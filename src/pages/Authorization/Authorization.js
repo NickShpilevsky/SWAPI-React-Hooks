@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     minHeight: '24rem',
-    height: '20rem', //'80vh',
+    height: '20rem',
     marginTop: '5rem',
   },
 }));
