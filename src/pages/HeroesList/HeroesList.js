@@ -1,23 +1,24 @@
 import React, {useEffect, useState} from 'react';
-import AppBar from '@material-ui/core/AppBar';
-import ToolBar from '@material-ui/core/ToolBar';
-import Typography from '@material-ui/core/Typography';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import { makeStyles, fade } from '@material-ui/core/styles';
-import Avatar from '@material-ui/core/Avatar';
-import axios from "axios";
 
-import List from "./List";
-import Info from "./Info";
+import { makeStyles, fade } from '@material-ui/core/styles';
+import axios from "axios";
+import SwAppBar from '../../components/SwAppBar';
+import List from "./List/List";
+import Info from "./Info/Info";
 
 const useStyles = makeStyles((theme) => ({
   grow: {
     flexGrow: 1,
     backgroundImage: 'url(/images/background.jpg);',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    height: '950px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    minWidth: '100%',
+    minHeight: '100%',
   },
 
   title: {
@@ -60,6 +61,8 @@ const useStyles = makeStyles((theme) => ({
   wrapper: {
     display: 'flex',
     padding: theme.spacing(2, 2),
+    height: '680px',
+
   },
 
   right: {
@@ -92,96 +95,68 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const HeroesList = props => {
-  const [allData, setAllData] = useState();
-  const [name, setName] = useState();
-  const [url, setUrl] = useState();
-  const [email, setEmail] = useState();
+  const [allData, setAllData] = useState([]);
   const [info, setInfo] = useState();
   const [searchValue, setSearchValue] = useState('');
-  const [isSearch, setIsSearch] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [liked, setLiked] = useState({});
+  const [showLiked, setShowLiked] = useState(false);
+  let [page, setPage] = useState(0);
+  let [check, setCheck] = useState(0);
+
+  async function fetchData(searchValue) {
+    const response = await axios(`https://swapi.dev/api/people/${typeof searchValue === "number" && page ? `?page=${searchValue}` : `?search=${searchValue}`}`);
+    for (let i = 0; i < response.data.results.length; i++) {
+      let homeworld = await axios(response.data.results[i].homeworld);
+      response.data.results[i].homeworld = homeworld.data.name;
+    }
+    return response.data.results;
+  }
 
   useEffect(() => {
-    if (!isSearch) {
-      async function fetchData() {
-        let data =[];
-        for (let i = 1; i <= 9; i++) {
-          const response = await axios(`https://swapi.dev/api/people/?page=${i}`);
-          for (let j = 0; j < response.data.results.length; j++) {
-            data.push(response.data.results[j]);
-          }
-        }
-        return data
-      }
-
-      fetchData().then((data) => {
-        setAllData(data);
-      });
+    if (showLiked) {
+      setPage(1);
+      setAllData(Object.values(liked).filter(item => item));
     }
-  }, [isSearch]);
+  },[showLiked, liked]);
 
   useEffect(() => {
-    setEmail(props.user ? props.user.email : 'None');
-    setName(props.user ? props.user.name : 'Hey');
-    setUrl(props.user ? props.user.picture.data.url : null);
-  }, [props.user]);
-
-  const setInformation = data => {
-    setInfo(data);
-  };
-
-  const takeSearchText = (e) => {
-    setSearchValue(e.target.value);
-  };
-
-  const search = (e) => {
-    e.preventDefault();
-    if (searchValue !== '') {
-      async function fetchData() {
-        let data;
-        const response = await axios(`https://swapi.dev/api/people/?search=${searchValue}`);
-        data = response.data.results;
-        return data
-      }
-      fetchData().then((data) => {
-        console.log(data);
-        setIsSearch(true);
-        setAllData(data);
+    if (!showSearch) {
+      fetchData(page).then((data) => {
+        setAllData([...allData, ...data]);
       });
     }
-  };
+  }, [showSearch, check]);
+
+  useEffect(() => {
+    setPage(++page);
+  }, [check]);
 
   const classes = useStyles();
     return(
       <div className={classes.grow}>
-        <AppBar position="sticky">
-          <ToolBar>
-            <Typography className={classes.title} variant="h6" noWrap>
-              Star Wars
-            </Typography>
-                <form onSubmit={search}>
-                  <TextField
-                    className={classes.textField}
-                    value={searchValue}
-                    onChange={takeSearchText}
-                    variant="outlined"
-                    id="search"
-                    label="search"
-                  />
-                </form>
-            <Button variant="outlined" color="secondary" onClick={() => {setIsSearch(false); setSearchValue('')}}>hide search</Button>
-            <Typography variant="h6" noWrap className={classes.text}>
-              {`${name}, may the force be with you!`}
-            </Typography>
-            <div className={classes.right}>
-              <Typography variant="h6" noWrap className={classes.email}>
-                {`E-mail: ${email}`}
-              </Typography>
-              <Avatar alt="Name" src={url} className={classes.avatar} />
-            </div>
-          </ToolBar>
-        </AppBar>
+        <SwAppBar
+          setAllData={setAllData}
+          setPage={setPage}
+          user={props.user}
+          fetchData={fetchData}
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          showSearch={showSearch}
+          setShowSearch={setShowSearch}
+          liked={liked}
+          showLiked={showLiked}
+          setShowLiked={setShowLiked}
+        />
         <div className={classes.wrapper}>
-          <List data={allData} setInformation={setInformation}/>
+          <List data={allData}
+                liked={liked}
+                setLiked={setLiked}
+                showLiked={showLiked}
+                showSearch={showSearch}
+                check={check}
+                setCheck={setCheck}
+                setInfo={setInfo}/>
           <Info info={info}/>
         </div>
       </div>

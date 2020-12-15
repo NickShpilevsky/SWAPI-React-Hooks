@@ -7,7 +7,7 @@ import axios from "axios";
 const useStyles = makeStyles((theme) => ({
   paper: {
     width: '25rem',
-    height: '50rem',
+    height: '640px',
     padding: theme.spacing(1, 1),
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.white,
@@ -41,74 +41,67 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Info = props => {
-  const [name, setName] = useState('Title');
-  const [simpleInfo, setSimpleInfo] = useState({name: '', gender: ''});
-  const [compositeInfo, setCompositeInfo] = useState({films: [], vehicles: [], homeworld: ['']});
+  const { info } = props;
+  const [name, setName] = useState('Information');
+  const [simpleInfo, setSimpleInfo] = useState(['gender', 'height', 'hair color', 'skin color', 'eye color', 'birth year', 'home world']);
+  const [compositeInfo, setCompositeInfo] = useState({films: [], vehicles: []});
 
-  useEffect(() => {
-    setName(props.info ? props.info.name : 'Title');
-    setSimpleInfo({
-      gender: props.info ? props.info.gender : '',
-      height: props.info ? props.info.height : '',
-      hair_color: props.info ? props.info.hair_color : '',
-      skin_color: props.info ? props.info.skin_color : '',
-      eye_color: props.info ? props.info.eye_color : '',
-      birth_year: props.info ? props.info.birth_year : '',
-    });
-  }, [props.info]);
-
-  useEffect(() => {
-    async function fetchData() {
-      let data = {
-        homeworld: [],
-        vehicles: [],
-        films: [],
-      };
-      if (props.info) {
-        const homeworld = await axios(props.info.homeworld.replace('http', 'https'));
-        data.homeworld.push(homeworld.data.name);
-
-        for (let item in props.info.vehicles) {
-          let vehicle = {};
-          const vehicles = await axios(props.info.vehicles[item].replace('http', 'https'));
-          vehicle.name = vehicles.data.name;
-          vehicle.model = vehicles.data.model;
-          data.vehicles.push(vehicle);
-        }
-
-        for (let item in props.info.films) {
-          const films = await axios(props.info.films[item].replace('http', 'https'));
-          data.films.push(films.data.title);
-        }
-        return data;
-      }
+  async function fetchData() {
+    let [data, vehicle, films] = [{vehicles: [], films: []}, ];
+    for (let item in info.vehicles) {
+      vehicle = await axios(info.vehicles[item].replace('http', 'https'));
+      data.vehicles.push({name: vehicle.data.name, model: vehicle.data.model});
     }
+    for (let item in info.films) {
+      films = await axios(info.films[item].replace('http', 'https'));
+      data.films.push(films.data.title);
+    }
+    return data;
+  }
 
-    fetchData().then((data) => {
-      setCompositeInfo(data);
-    });
-  }, [props.info]);
+  useEffect(() => {
+    if (info) {
+      const { name, gender, height, hair_color, skin_color, eye_color, birth_year, homeworld } = info;
+      setName(name);
+      setSimpleInfo({
+        gender: gender,
+        height: height,
+        'hair color': hair_color,
+        'skin color': skin_color,
+        'eye color': eye_color,
+        'birth year': birth_year,
+        'home world': homeworld,
+      });
+    }
+  }, [info]);
+
+  useEffect(() => {
+    if (info) {
+      fetchData().then((data) => {
+        setCompositeInfo(data);
+      });
+    }
+  }, [info]);
+
+  const printData = (array, className) => {
+    let key = 1;
+    if (array) return (
+      array.map(item => (
+        <p key={key++} className={className}>{item}</p>
+      ))
+    )
+  };
 
   const classes = useStyles();
   return (
     <Paper elevation={5} className={classes.paper}>
       <h1 className={classes.title}>{name}</h1>
       <div className={classes.row}>
-        <div>
-          {
-            Object.keys(simpleInfo).map(item => (
-              <p key={item} className={classes.itemTitle}>{item}</p>
-            ))
-          }
-          <p className={classes.itemTitle}>home world</p>
+        <div className={classes.itemTitle}>
+          {!Array.isArray(simpleInfo) ? printData(Object.keys(simpleInfo)) : printData(Object.values(simpleInfo))}
         </div>
         <div>
-          {
-            Object.keys(simpleInfo).map(item => (
-              <p key={item}>{simpleInfo[item]}</p>
-            ))
-          }
-          <p>{compositeInfo ? compositeInfo.homeworld : ''}</p>
+          {!Array.isArray(simpleInfo) ? printData(Object.values(simpleInfo)) : null}
         </div>
       </div>
       <Accordion className={classes.accordion}>
@@ -120,20 +113,20 @@ const Info = props => {
           <Typography className={classes.itemTitle}>Vehicles</Typography>
         </AccordionSummary>
         <AccordionDetails className={classes.accordionDetails}>
-                {
-                  compositeInfo ? compositeInfo.vehicles.map(item => (
-                    <div key={item.name} className={[classes.row]}>
-                      <div>
-                        <p className={classes.itemTitle}>name</p>
-                        <p className={classes.itemTitle}>model</p>
-                      </div>
-                      <div>
-                        <p>{compositeInfo.vehicles.length ? item.name : ''}</p>
-                        <p>{compositeInfo.vehicles.length ? item.model : ''}</p>
-                      </div>
-                    </div>
-                  )) : (<p>None</p>)
-                }
+          {
+            compositeInfo.vehicles.length ? compositeInfo.vehicles.map(item => (
+              <div key={item.name} className={[classes.row]}>
+                <div>
+                  <p className={classes.itemTitle}>name</p>
+                  <p className={classes.itemTitle}>model</p>
+                </div>
+                <div>
+                  <p>{compositeInfo.vehicles.length ? item.name : ''}</p>
+                  <p>{compositeInfo.vehicles.length ? item.model : ''}</p>
+                </div>
+              </div>))
+              : (<p>None</p>)
+          }
         </AccordionDetails>
       </Accordion>
       <Accordion className={classes.accordion}>
@@ -146,11 +139,7 @@ const Info = props => {
         </AccordionSummary>
         <AccordionDetails>
           <div>
-              {
-                compositeInfo ? compositeInfo.films.map(item => (
-                  <p key={item} className={classes.itemTitle}>{item}</p>
-                )) : ''
-              }
+            {compositeInfo.films.length ? printData(compositeInfo.films, classes.itemTitle) : null}
           </div>
         </AccordionDetails>
       </Accordion>

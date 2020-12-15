@@ -1,6 +1,6 @@
 import { createMuiTheme } from '@material-ui/core/styles';
 
-import { COLOR_PRIMARY, COLOR_SECONDARY, COLOR_WHITE } from '../styles/variables';
+import { COLOR_PRIMARY, COLOR_SECONDARY, COLOR_WHITE, PINK } from '../styles/variables';
 
 const theme = createMuiTheme({
   palette: {
@@ -10,6 +10,7 @@ const theme = createMuiTheme({
     secondary: {
       main: COLOR_SECONDARY,
     },
+    inherit: PINK,
     white: COLOR_WHITE,
   },
   typography: {
