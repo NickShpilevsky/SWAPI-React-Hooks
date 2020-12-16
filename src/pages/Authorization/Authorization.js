@@ -1,7 +1,8 @@
 import React from 'react';
 import FacebookLogin from 'react-facebook-login';
 import makeStyles from '@material-ui/core/styles/makeStyles';
-import {Grid, Paper} from '@material-ui/core';
+import {Grid, Paper, withStyles} from '@material-ui/core';
+import globalStyles from "../../styles/global";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -66,4 +67,4 @@ const Authorization = props => {
     )
 };
 
-export default Authorization;
+export default withStyles(globalStyles)(Authorization);

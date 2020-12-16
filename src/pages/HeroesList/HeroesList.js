@@ -1,10 +1,11 @@
 import React, {useEffect, useState} from 'react';
-
 import { makeStyles, fade } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core';
 import axios from "axios";
 import SwAppBar from '../../components/SwAppBar';
 import List from "./List/List";
 import Info from "./Info/Info";
+import globalStyles from "../../styles/global";
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -163,4 +164,4 @@ const HeroesList = props => {
     )
 };
 
-export default HeroesList;
+export default withStyles(globalStyles)(HeroesList);
