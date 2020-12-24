@@ -1,4 +1,4 @@
-# SWAPI-Hooks
+# SWAPI-React-Hooks
 
 This project is made using React, React Hooks, Material UI and [SWAPI](https://swapi.dev/).
 Project constains Sign in with Facebook, Lazy load and autocomplete.
